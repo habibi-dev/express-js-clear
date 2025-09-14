@@ -1,5 +1,5 @@
 import {Express} from "express";
-import HomeController from "../features/home/controller/HomeController";
+import HomeController from "../modules/home/controller/HomeController";
 
 export default (app: Express) => {
 
