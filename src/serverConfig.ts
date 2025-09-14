@@ -5,7 +5,7 @@ import securityConfig from "./config/SecurityConfig";
 import AppConfig from "./config/AppConfig";
 import CorsConfig from "./config/CorsConfig";
 import CronConfig from "./config/CronConfig";
-import Routes from "./routes/Routes";
+import RouteManager from "./routes/RouteManager";
 import pkg from "lodash";
 
 function serverConfig() {
@@ -24,8 +24,8 @@ function serverConfig() {
     // Cron jobs config
     CronConfig(app);
 
-    // import routes
-    Routes(app);
+    // Dynamic routes
+    new RouteManager(app).register();
 
     let options = {};
 
