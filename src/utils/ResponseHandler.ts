@@ -1,4 +1,5 @@
 import {Request, Response} from "express";
+import pkg from "lodash";
 
 export default class ResponseHandler {
     /**
@@ -6,8 +7,12 @@ export default class ResponseHandler {
      * Using a dedicated method avoids duplication in response helpers.
      */
     private static calculateDuration(req: Request): number {
-        const start = req.startTime ?? Date.now();
-        return Date.now() - start;
+        const startTime = pkg.get(req, 'startTime',[0, 0]) as [number, number];
+
+        const diff = process.hrtime(startTime); // [seconds, nanoseconds]
+
+        // convert to seconds with decimals
+        return diff[0] + diff[1] / 1e9;
     }
 
     /**
