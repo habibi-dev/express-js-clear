@@ -6,7 +6,7 @@ import RouteInterface from "../../../contracts/RouteInterface";
 const router = Router();
 
 // Register home index route
-router.get('/', HomeController.index);
+router.get('/status', HomeController.status);
 
 // Export route configuration
 const homeRoute: RouteInterface = {
