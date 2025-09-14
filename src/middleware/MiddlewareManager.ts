@@ -1,37 +1,34 @@
+import { Express } from "express";
 import fs from "fs";
 import path from "path";
-import cron from "node-cron";
-import CronDefinitionInterface from "../contracts/CronDefinitionInterface";
+import MiddlewareDefinitionInterface from "../contracts/MiddlewareDefinitionInterface";
 
-// Loads cron definitions from modules and registers them with node-cron
-export default class CronManager {
+// Dynamically loads and registers middleware from all modules
+export default class MiddlewareManager {
     private readonly modulesPath: string;
 
-    constructor() {
+    constructor(private readonly app: Express) {
         // Determine modules directory relative to compiled files
         this.modulesPath = path.join(__dirname, "..", "modules");
     }
 
-    // Scan modules for cron kernels and schedule their jobs
+    // Scan modules for middleware kernels and mount their definitions
     public register(): void {
         const moduleDirectories = fs.readdirSync(this.modulesPath, { withFileTypes: true })
             .filter((dirent) => dirent.isDirectory())
             .map((dirent) => dirent.name);
 
         moduleDirectories.forEach((moduleName) => {
-            const kernelPath = path.join(this.modulesPath, moduleName, "crons", "Kernel");
-
-            // Load kernel file if it exists (.ts or .js)
+            const kernelPath = path.join(this.modulesPath, moduleName, "middleware", "Kernel");
             const kernelFile = this.resolveFile(kernelPath);
             if (!kernelFile) {
                 return;
             }
 
-            const tasks: CronDefinitionInterface[] = require(kernelFile).default;
+            const middlewares: MiddlewareDefinitionInterface[] = require(kernelFile).default;
 
-            // Register each task with node-cron
-            tasks.forEach(({ schedule, job }) => {
-                cron.schedule(schedule, () => job.execute());
+            middlewares.forEach(({ path: basePath, handler }) => {
+                this.app.use(basePath, handler);
             });
         });
     }

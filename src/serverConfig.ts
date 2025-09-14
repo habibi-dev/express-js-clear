@@ -6,6 +6,7 @@ import securityConfig from "./config/SecurityConfig";
 import AppConfig from "./config/AppConfig";
 import CorsConfig from "./config/CorsConfig";
 import CronConfig from "./config/CronConfig";
+import ModuleMiddlewareConfig from "./config/ModuleMiddlewareConfig";
 import RouteManager from "./routes/RouteManager";
 import pkg from "lodash";
 
@@ -24,6 +25,9 @@ function serverConfig() {
 
     // Cors config
     CorsConfig(app);
+
+    // Module middleware config
+    ModuleMiddlewareConfig(app);
 
     // Cron jobs config
     CronConfig(app);

@@ -1,7 +1,7 @@
-import InterfaceCronDefinition from "../../../contracts/InterfaceCronDefinition";
+import CronDefinitionInterface from "../../../contracts/CronDefinitionInterface";
 import ClearingTmp from "./jobs/ClearingTmp";
 
-const kernel: InterfaceCronDefinition[] = [
+const kernel: CronDefinitionInterface[] = [
     {
         schedule: "* * * * *",
         job: new ClearingTmp()

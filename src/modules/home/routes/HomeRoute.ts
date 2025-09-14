@@ -1,6 +1,6 @@
 import {Router} from "express";
 import HomeController from "../controller/HomeController";
-import InterfaceRoute from "../../../contracts/InterfaceRoute";
+import RouteInterface from "../../../contracts/RouteInterface";
 
 // Create router instance for home module
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
 router.get('/', HomeController.index);
 
 // Export route configuration
-const homeRoute: InterfaceRoute = {
+const homeRoute: RouteInterface = {
     basePath: '/',
     router,
 };

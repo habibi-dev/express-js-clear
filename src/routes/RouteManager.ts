@@ -1,7 +1,7 @@
 import { Express } from "express";
 import fs from "fs";
 import path from "path";
-import InterfaceRoute from "../contracts/InterfaceRoute";
+import RouteInterface from "../contracts/RouteInterface";
 
 // Loads and registers routes for all modules dynamically
 export default class RouteManager {
@@ -37,7 +37,7 @@ export default class RouteManager {
                 const filePath = path.join(routesPath, fileName);
 
                 // Import route file
-                const routeModule: InterfaceRoute = require(filePath).default;
+                const routeModule: RouteInterface = require(filePath).default;
 
                 // Check if routeModule has required properties
                 if (routeModule && routeModule.basePath && routeModule.router) {
