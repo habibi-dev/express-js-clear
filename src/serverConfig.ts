@@ -12,42 +12,51 @@ import RouteManager from "./routes/RouteManager";
 
 type AppConfigurator = (app: Express) => void;
 
-const configurators: AppConfigurator[] = [
-    RequestTimerConfig,
-    securityConfig,
-    AppConfig,
-    CorsConfig,
-    ModuleMiddlewareConfig,
-    CronConfig,
-];
+class ServerConfigurator {
+    private readonly app: Express;
+    private readonly configurators: AppConfigurator[] = [
+        RequestTimerConfig,
+        securityConfig,
+        AppConfig,
+        CorsConfig,
+        ModuleMiddlewareConfig,
+        CronConfig,
+    ];
 
-function applyConfigurators(app: Express, configs: AppConfigurator[]): void {
-    // Applies each configuration to a shared app instance
-    configs.forEach((configure) => configure(app));
-}
-
-function getHttpsOptions(): ServerOptions {
-    // Builds HTTPS options when running in a production environment
-    const { PRIVKEY, FULLCHAIN, DOMAIN = "localhost" } = process.env;
-    if (DOMAIN !== "localhost" && PRIVKEY && FULLCHAIN) {
-        return {
-            key: fs.readFileSync(PRIVKEY),
-            cert: fs.readFileSync(FULLCHAIN),
-        };
+    constructor() {
+        this.app = express();
     }
-    return {};
+
+    private applyConfigurators(): void {
+        this.configurators.forEach((configure) => configure(this.app));
+    }
+
+    private getHttpsOptions(): ServerOptions {
+        const { PRIVKEY, FULLCHAIN, DOMAIN = "localhost" } = process.env;
+        if (DOMAIN !== "localhost" && PRIVKEY && FULLCHAIN) {
+            return {
+                key: fs.readFileSync(PRIVKEY),
+                cert: fs.readFileSync(FULLCHAIN),
+            };
+        }
+        return {};
+    }
+
+    private setupRoutes(): void {
+        new RouteManager(this.app).register();
+    }
+
+    public build() {
+        this.applyConfigurators();
+        this.setupRoutes();
+
+        this.app.set("trust proxy", 1);
+
+        const server = https.createServer(this.getHttpsOptions(), this.app);
+        return { app: this.app, server };
+    }
 }
 
 export default function serverConfig() {
-    const app = express();
-
-    applyConfigurators(app, configurators);
-
-    // Registers dynamic routes after core configurations
-    new RouteManager(app).register();
-
-    app.set("trust proxy", 1);
-
-    const server = https.createServer(getHttpsOptions(), app);
-    return { app, server };
+    return new ServerConfigurator().build();
 }
