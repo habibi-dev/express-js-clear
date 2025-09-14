@@ -29,7 +29,7 @@ export default class ResponseHandler {
      */
     static async Success(req: Request, res: Response, data: object) {
         const duration = ResponseHandler.calculateDuration(req);
-        const nData = {status: true, data, duration};
+        const nData = {status: true, duration, data};
         return res.status(200).json(nData);
     }
 }
