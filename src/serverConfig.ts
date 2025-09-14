@@ -1,50 +1,62 @@
-import express from "express";
+import express, { Express } from "express";
+import type { ServerOptions } from "https";
 import https from "https";
 import fs from "fs";
+import RequestTimerConfig from "./config/RequestTimerConfig";
 import securityConfig from "./config/SecurityConfig";
 import AppConfig from "./config/AppConfig";
 import CorsConfig from "./config/CorsConfig";
 import CronConfig from "./config/CronConfig";
-import Routes from "./routes/Routes";
-import pkg from "lodash";
+import ModuleMiddlewareConfig from "./config/ModuleMiddlewareConfig";
+import RouteManager from "./routes/RouteManager";
 
-function serverConfig() {
+type AppConfigurator = (app: Express) => void;
 
-    const app = express();
+class ServerConfigurator {
+    private readonly app: Express;
+    private readonly configurators: AppConfigurator[] = [
+        RequestTimerConfig,
+        securityConfig,
+        AppConfig,
+        CorsConfig,
+        ModuleMiddlewareConfig,
+        CronConfig,
+    ];
 
-    // Security config
-    securityConfig(app);
-
-    // App config
-    AppConfig(app);
-
-    // Cors config
-    CorsConfig(app);
-
-    // Cron jobs config
-    CronConfig(app);
-
-    // import routes
-    Routes(app);
-
-    let options = {};
-
-    const PRIVKEY = pkg.get(process, "env.PRIVKEY", "")
-    const FULLCHAIN = pkg.get(process, "env.FULLCHAIN", "")
-    const DOMAIN = pkg.get(process, "env.DOMAIN", "localhost")
-
-    if (DOMAIN !== "localhost" && PRIVKEY.length) {
-        // app.use(forceSSL)
-        options = {
-            key: fs.readFileSync(PRIVKEY),
-            cert: fs.readFileSync(FULLCHAIN),
-        };
+    constructor() {
+        this.app = express();
     }
 
-    app.set('trust proxy', 1);
+    private applyConfigurators(): void {
+        this.configurators.forEach((configure) => configure(this.app));
+    }
 
-    const server = https.createServer(options, app);
-    return {app, server};
+    private getHttpsOptions(): ServerOptions {
+        const { PRIVKEY, FULLCHAIN, DOMAIN = "localhost" } = process.env;
+        if (DOMAIN !== "localhost" && PRIVKEY && FULLCHAIN) {
+            return {
+                key: fs.readFileSync(PRIVKEY),
+                cert: fs.readFileSync(FULLCHAIN),
+            };
+        }
+        return {};
+    }
+
+    private setupRoutes(): void {
+        new RouteManager(this.app).register();
+    }
+
+    public build() {
+        this.applyConfigurators();
+        this.setupRoutes();
+
+        this.app.set("trust proxy", 1);
+
+        const server = https.createServer(this.getHttpsOptions(), this.app);
+        return { app: this.app, server };
+    }
 }
 
-export default serverConfig;
+export default function serverConfig() {
+    return new ServerConfigurator().build();
+}
