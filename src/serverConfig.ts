@@ -1,6 +1,7 @@
 import express from "express";
 import https from "https";
 import fs from "fs";
+import RequestTimerConfig from "./config/RequestTimerConfig";
 import securityConfig from "./config/SecurityConfig";
 import AppConfig from "./config/AppConfig";
 import CorsConfig from "./config/CorsConfig";
@@ -11,6 +12,9 @@ import pkg from "lodash";
 function serverConfig() {
 
     const app = express();
+
+    // Request timer config
+    RequestTimerConfig(app);
 
     // Security config
     securityConfig(app);
