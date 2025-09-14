@@ -5,7 +5,6 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
-    "seed": "ts-node src/install/install.ts",
     "start": "tsc && node dist/index.js",
     "dev": "ts-node src/index.ts",
     "watch": "tsc --watch src/index.ts"
