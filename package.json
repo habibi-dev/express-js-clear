@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "watch": "tsc --watch src/index.ts",
+    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "watch": "tsc --watch",
     "test": "jest"
   },
   "keywords": [
@@ -17,32 +17,32 @@
   "author": "Habibi-Dev",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.2",
+    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
     "express-force-ssl": "^0.3.2",
-    "express-rate-limit": "^7.3.1",
-    "helmet": "^7.1.0",
-    "joi": "^17.13.3",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.1",
     "lodash": "^4.17.21",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.2.1",
     "node-schedule": "^2.1.1",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.14",
-    "@types/lodash": "^4.17.9",
-    "@types/node": "^22.7.4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.4.0",
     "@types/node-cron": "^3.0.11",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.2.1",
     "jest": "^29.7.0",
-    "nodemon": "^3.1.4",
+    "nodemon": "^3.1.10",
     "ts-jest": "^29.4.1",
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.2"
   }
 }
