@@ -11,11 +11,11 @@ const env = process.env.NODE_ENV || "development";
 
 function printServerInfo(isDev: boolean) {
     if (isDev) {
-        console.log("Is Running Developer Mod! 🙂🛠️");
+        console.log("Is Running Developer Mod! 🤓🛠️");
         console.log(`Visit: http://localhost:${port}/status`);
     } else {
         const protocol = port === 443 ? "https" : "http";
-        console.log("Is Running! 🙂😍😋");
+        console.log("Is Running! 🙂😍😋😈");
         console.log(`Visit: ${protocol}://${domain}${port === 443 ? "" : `:${port}`}/status`);
     }
 }
