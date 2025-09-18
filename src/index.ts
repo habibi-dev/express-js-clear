@@ -1,8 +1,11 @@
 import serverConfig from "./serverConfig";
 import dotenv from "dotenv";
+import Logger from "./services/Logger";
 
 async function bootstrap() {
     try {
+
+        Logger.initialize()
 
         dotenv.config();
 
@@ -14,12 +17,12 @@ async function bootstrap() {
 
         function printServerInfo(isDev: boolean) {
             if (isDev) {
-                console.log("Is Running Developer Mod! 🤓🛠️");
-                console.log(`Visit: http://localhost:${port}/api/status`);
+                Logger.info("Is Running Developer Mod! 🤓🛠️");
+                Logger.info(`Visit: http://localhost:${port}/api/status`);
             } else {
                 const protocol = port === 443 ? "https" : "http";
-                console.log("Is Running! 🙂😍😋😈");
-                console.log(`Visit: ${protocol}://${domain}${port === 443 ? "" : `:${port}`}/status`);
+                Logger.info("Is Running! 🙂😍😋😈");
+                Logger.info(`Visit: ${protocol}://${domain}${port === 443 ? "" : `:${port}`}/status`);
             }
         }
 
@@ -29,14 +32,14 @@ async function bootstrap() {
             server.listen(port, domain, () => printServerInfo(false));
         }
     } catch (error) {
-        console.error('Failed to start application:', error);
+        Logger.error(`Failed to start application: ${error}`);
         process.exit(1);
     }
 }
 
 process.on('SIGTERM', async () => {
     // cleanup logic
-    console.log('SIGTERM signal received: closing HTTP server');
+    Logger.warn('SIGTERM signal received: closing HTTP server');
     process.exit(0);
 });
 
