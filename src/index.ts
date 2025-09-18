@@ -1,27 +1,27 @@
-import serverConfig from "./serverConfig";
-import dotenv from "dotenv";
+import Logger from "./services/Logger";
+import {bootstrapManager} from "./services/BootstrapManager";
+import {WebService} from "./services/WebService";
 
-dotenv.config();
+async function bootstrap() {
+    try {
+        // Initialize all modules
+        await bootstrapManager.initialize();
 
-const {server, app} = serverConfig();
+        // Start server
+        WebService.startServer();
 
-const port = Number(process.env.PORT) || 3000;
-const domain = process.env.DOMAIN || "localhost";
-const env = process.env.NODE_ENV || "development";
-
-function printServerInfo(isDev: boolean) {
-    if (isDev) {
-        console.log("Is Running Developer Mod! 🙂🛠️");
-        console.log(`Visit: http://localhost:${port}/status`);
-    } else {
-        const protocol = port === 443 ? "https" : "http";
-        console.log("Is Running! 🙂😍😋");
-        console.log(`Visit: ${protocol}://${domain}${port === 443 ? "" : `:${port}`}/status`);
+    } catch (error) {
+        Logger.error(`Failed to start application: ${error}`);
+        await bootstrapManager.shutdown();
+        process.exit(1);
     }
 }
 
-if (domain === "localhost" || env === "localhost") {
-    app.listen(port, () => printServerInfo(true));
-} else {
-    server.listen(port, domain, () => printServerInfo(false));
-}
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    Logger.warn('SIGTERM signal received: shutting down gracefully');
+    await bootstrapManager.shutdown();
+    process.exit(0);
+});
+
+bootstrap().then();
