@@ -1,45 +1,26 @@
-import serverConfig from "./serverConfig";
-import dotenv from "dotenv";
 import Logger from "./services/Logger";
+import {bootstrapManager} from "./services/BootstrapManager";
+import {WebService} from "./services/WebService";
 
 async function bootstrap() {
     try {
+        // Initialize all modules
+        await bootstrapManager.initialize();
 
-        Logger.initialize()
+        // Start server
+        WebService.startServer();
 
-        dotenv.config();
-
-        const {server, app} = serverConfig();
-
-        const port = Number(process.env.PORT) || 3000;
-        const domain = process.env.DOMAIN || "localhost";
-        const env = process.env.NODE_ENV || "development";
-
-        function printServerInfo(isDev: boolean) {
-            if (isDev) {
-                Logger.info("Is Running Developer Mod! 🤓🛠️");
-                Logger.info(`Visit: http://localhost:${port}/api/status`);
-            } else {
-                const protocol = port === 443 ? "https" : "http";
-                Logger.info("Is Running! 🙂😍😋😈");
-                Logger.info(`Visit: ${protocol}://${domain}${port === 443 ? "" : `:${port}`}/status`);
-            }
-        }
-
-        if (domain === "localhost" || env === "localhost") {
-            app.listen(port, () => printServerInfo(true));
-        } else {
-            server.listen(port, domain, () => printServerInfo(false));
-        }
     } catch (error) {
         Logger.error(`Failed to start application: ${error}`);
+        await bootstrapManager.shutdown();
         process.exit(1);
     }
 }
 
+// Graceful shutdown
 process.on('SIGTERM', async () => {
-    // cleanup logic
-    Logger.warn('SIGTERM signal received: closing HTTP server');
+    Logger.warn('SIGTERM signal received: shutting down gracefully');
+    await bootstrapManager.shutdown();
     process.exit(0);
 });
 
