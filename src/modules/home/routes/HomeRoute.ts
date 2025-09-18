@@ -10,7 +10,7 @@ router.get('/status', HomeController.status);
 
 // Export route configuration
 const homeRoute: RouteInterface = {
-    basePath: '/',
+    basePath: '/api',
     router,
 };
 
